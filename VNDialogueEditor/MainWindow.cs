@@ -24,7 +24,12 @@ namespace VNDialogueEditor {
             if (openFileDialog.ShowDialog() == DialogResult.OK) {
                 XmlFile = XElement.Load(openFileDialog.FileName);
                 PopulateTree(treeView1, XmlFile);
-                LoadDialogue(XmlFile);
+                if (XmlFile.Attribute("EditorVersion") != null) {
+                    LoadDialogue(XmlFile);
+                }
+                else {
+                    LoadDialogueLegacy(XmlFile);
+                }
             }
         }
 
@@ -48,7 +53,7 @@ namespace VNDialogueEditor {
             }
         }
 
-        public void LoadDialogue(XElement file) {
+        public void LoadDialogueLegacy(XElement file) {
             List<XElement> chapters = file.Elements("Chapter").ToList();
 
             foreach (XElement chapter in chapters) {
@@ -100,6 +105,58 @@ namespace VNDialogueEditor {
             }
         }
 
+        public void LoadDialogue(XElement file) {
+            List<XElement> chapters = file.Elements("Chapter").ToList();
+
+            foreach (XElement chapter in chapters) {
+                //Deprecated for now
+                int ChapterNumber = int.Parse(chapter.Attribute("Number").Value);
+                string ChapterBackground = (chapter.Attribute("Background") != null) ? chapter.Attribute("Background").Value : "";
+                Chapter Chapter = new Chapter(ChapterNumber, ChapterBackground);
+
+                foreach (XElement dialogue in chapter.Elements("Dialogue").ToList()) {
+                    int DialogueNumber = int.Parse(dialogue.Attribute("Number").Value);
+                    string dialogueText = dialogue.Element("Text").Value;
+                    string DialogueBackground = (dialogue.Attribute("Background") != null) ? dialogue.Attribute("Background").Value : "";
+
+                    Redirect dialogueRedirect = null;
+                    if (dialogue.Element("Redirect") != null) {
+                        dialogueRedirect = new Redirect(int.Parse(dialogue.Element("Redirect").Attribute("Chapter").Value),
+                                                int.Parse(dialogue.Element("Redirect").Attribute("Dialogue").Value));
+                    }
+
+                    List<Option> DialogueOptions = null;
+                    if (dialogue.Element("Options") != null) {
+                        DialogueOptions = new List<Option>();
+                        foreach (XElement option in dialogue.Element("Options").Elements("Option").ToList()) {
+
+                            Redirect optionRedir = new Redirect(int.Parse(option.Element("Redirect").Attribute("Chapter").Value),
+                                                int.Parse(option.Element("Redirect").Attribute("Dialogue").Value));
+                            DialogueOptions.Add(new Option(option.Attribute("Text").Value, optionRedir));
+                        }
+                    }
+                    List<Character> DialogueCharacters = new List<Character>();
+                    if (dialogue.Element("Characters") != null) {
+                        foreach (XElement character in dialogue.Element("Characters").Elements("Character").ToList()) {
+                            // Defaults: Name = "" ; Picture = "" ; Side = 0 (Left); Selected = true; Hidden = false
+                            string CharacterName = (character.Attribute("Name") != null) ? character.Attribute("Name").Value : "";
+                            string CharacterPicture = (character.Attribute("picture") != null) ? character.Attribute("Picture").Value : "";
+                            int CharacterSide = (character.Attribute("Side") != null) ? int.Parse(character.Attribute("Side").Value) : 0;
+                            bool CharacterSelected = (character.Attribute("Selected") != null) ? bool.Parse(character.Attribute("Selected").Value) : true;
+                            bool CharacterHidden = (character.Attribute("Hidden") != null) ? bool.Parse(character.Attribute("Hidden").Value) : false;
+                            DialogueCharacters.Add(new Character(CharacterName, CharacterPicture, CharacterSide, CharacterSelected, CharacterHidden));
+                        }
+                    }
+
+                    Dialogue Dialogue = new Dialogue(DialogueNumber, DialogueCharacters, dialogueText, dialogueRedirect, DialogueOptions, DialogueBackground);
+
+                    Chapter.Dialogues.Add(Dialogue);
+                }
+
+                ChapterList.Add(Chapter);
+            }
+        }
+
         private XElement Build() {
             XElement newDocument = new XElement("Document", new XAttribute("EditorVersion", 1));
             foreach (Chapter chapter in ChapterList) {
@@ -119,13 +176,18 @@ namespace VNDialogueEditor {
             TreeNode Document = new TreeNode("Document");
             Document.Tag = xmlDocument;
             treeview.Nodes.Add(Document);
-            AddNodes(Document, xmlDocument);
+            if (xmlDocument.Attribute("EditorVersion") != null) {
+                AddNodes(Document, xmlDocument);
+            }
+            else {
+                AddNodesLegacy(Document, xmlDocument);
+            }
             treeview.ExpandAll();
             treeview.Nodes[0].EnsureVisible();
             treeview.Enabled = true;
         }
 
-        private void AddNodes(TreeNode treeNode, XElement parent) {
+        private void AddNodesLegacy(TreeNode treeNode, XElement parent) {
             foreach (XElement child in parent.Elements()) {
                 string label;
                 switch (child.Name.ToString()) {
@@ -147,6 +209,33 @@ namespace VNDialogueEditor {
                         break;
                     default:
                         label = "<" + child.Name.ToString() + ">";
+                        break;
+                }
+                TreeNode childNode = treeNode.Nodes.Add(label);
+                childNode.Tag = child;
+                AddNodesLegacy(childNode, child);
+            }
+        }
+
+        private void AddNodes(TreeNode treeNode, XElement parent) {
+            foreach (XElement child in parent.Elements()) {
+                string label = "<" + child.Name.ToString() + ">";
+                switch (child.Name.ToString()) {
+                    case "Chapter":
+                    case "Dialogue":
+                        label += " " + child.Attribute("Number").Value;
+                        break;
+                    case "Text":
+                    case "Option":
+                        label += " " + child.Value;
+                        break;
+                    case "Character":
+                        label += " " + child.Attribute("Name").Value;
+                        break;
+                    case "Redirect":
+                        label += " Ch" + child.Attribute("Chapter").Value + " D" + child.Attribute("Dialogue").Value;
+                        break;
+                    default:
                         break;
                 }
                 TreeNode childNode = treeNode.Nodes.Add(label);
