@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using VisualNovel;
 
 namespace VNDialogueEditor {
     public partial class MainWindow : Form {
@@ -10,6 +13,8 @@ namespace VNDialogueEditor {
         }
 
         private XElement XmlFile;
+        private List<Chapter> chapterList;
+        public List<Chapter> ChapterList => chapterList ?? (chapterList = new List<Chapter>());
 
         private void LoadXML() {
             OpenFileDialog openFileDialog = new OpenFileDialog {
@@ -19,10 +24,11 @@ namespace VNDialogueEditor {
             if (openFileDialog.ShowDialog() == DialogResult.OK) {
                 XmlFile = XElement.Load(openFileDialog.FileName);
                 PopulateTree(treeView1, XmlFile);
+                LoadDialogue(XmlFile);
             }
         }
 
-        private void ExportXML() {
+        private void ExportXML(string exportString) {
             Stream fileStream;
             SaveFileDialog saveFileDialog = new SaveFileDialog {
                 Filter = "XML Files (*.xml)|*.xml|All files (*.*)|*.*",
@@ -31,15 +37,80 @@ namespace VNDialogueEditor {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 if ((fileStream = saveFileDialog.OpenFile()) != null) {
                     StreamWriter streamWriter = new StreamWriter(fileStream);
-                    streamWriter.Write(treeView1.Nodes[0].Tag.ToString());
+                    streamWriter.Write(exportString);
                     streamWriter.Flush();
                     fileStream.Position = 0;
                     fileStream.Close();
                 }
                 else {
-                    MessageBox.Show("Can't write the file.", "Error writing file",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                    MessageBox.Show("Can't write the file.", "Error writing file", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+        }
+
+        public void LoadDialogue(XElement file) {
+            List<XElement> chapters = file.Elements("Chapter").ToList();
+
+            foreach (XElement chapter in chapters) {
+                //Deprecated for now
+                int ChapterNumber = int.Parse(chapter.Attribute("number").Value);
+                string ChapterBackground = (chapter.Attribute("background") != null) ? chapter.Attribute("background").Value : "";
+                Chapter Chapter = new Chapter(ChapterNumber, ChapterBackground);
+
+                foreach (XElement dialogue in chapter.Elements("Dialogue").ToList()) {
+                    int DialogueNumber = int.Parse(dialogue.Attribute("number").Value);
+                    string dialogueText = dialogue.Element("text").Value;
+                    string DialogueBackground = (dialogue.Attribute("background") != null) ? dialogue.Attribute("background").Value : "";
+
+                    Redirect dialogueRedirect = null;
+                    if (dialogue.Element("redirect") != null) {
+                        dialogueRedirect = new Redirect(int.Parse(dialogue.Element("redirect").Attribute("chapter").Value),
+                                                int.Parse(dialogue.Element("redirect").Attribute("dialogue").Value));
+                    }
+
+                    List<Option> DialogueOptions = null;
+                    if (dialogue.Element("options") != null) {
+                        DialogueOptions = new List<Option>();
+                        foreach (XElement option in dialogue.Element("options").Elements("option").ToList()) {
+
+                            Redirect optionRedir = new Redirect(int.Parse(option.Element("redirect").Attribute("chapter").Value),
+                                                int.Parse(option.Element("redirect").Attribute("dialogue").Value));
+                            DialogueOptions.Add(new Option(option.Element("option_text").Value, optionRedir));
+                        }
+                    }
+                    List<Character> DialogueCharacters = new List<Character>();
+                    if (dialogue.Element("characters") != null) {
+                        foreach (XElement character in dialogue.Element("characters").Elements("character").ToList()) {
+                            // Defaults: Name = "" ; Picture = "" ; Side = 0 (Left); Selected = true; Hidden = false
+                            string CharacterName = (character.Attribute("name") != null) ? character.Attribute("name").Value : "";
+                            string CharacterPicture = (character.Attribute("picture") != null) ? character.Attribute("picture").Value : "";
+                            int CharacterSide = (character.Attribute("side") != null) ? int.Parse(character.Attribute("side").Value) : 0;
+                            bool CharacterSelected = (character.Attribute("selected") != null) ? bool.Parse(character.Attribute("selected").Value) : true;
+                            bool CharacterHidden = (character.Attribute("hidden") != null) ? bool.Parse(character.Attribute("hidden").Value) : false;
+                            DialogueCharacters.Add(new Character(CharacterName, CharacterPicture, CharacterSide, CharacterSelected, CharacterHidden));
+                        }
+                    }
+
+                    Dialogue Dialogue = new Dialogue(DialogueNumber, DialogueCharacters, dialogueText, dialogueRedirect, DialogueOptions, DialogueBackground);
+
+                    Chapter.Dialogues.Add(Dialogue);
+                }
+
+                ChapterList.Add(Chapter);
+            }
+        }
+
+        private XElement Build() {
+            XElement newDocument = new XElement("Document", new XAttribute("EditorVersion", 1));
+            foreach (Chapter chapter in ChapterList) {
+                XElement xElement = new XElement("Chapter", new XAttribute("Number", chapter.Number));
+                foreach (Dialogue dialogue in chapter.Dialogues) {
+                    xElement.Add(dialogue.ExportXML());
+                }
+                newDocument.Add(xElement);
+            }
+
+            return newDocument;
         }
 
         public void PopulateTree(TreeView treeview, XElement xmlDocument) {
@@ -56,7 +127,29 @@ namespace VNDialogueEditor {
 
         private void AddNodes(TreeNode treeNode, XElement parent) {
             foreach (XElement child in parent.Elements()) {
-                TreeNode childNode = treeNode.Nodes.Add(child.Name.ToString());
+                string label;
+                switch (child.Name.ToString()) {
+                    case "Chapter":
+                    case "Dialogue":
+                        label = "<" + child.Name.ToString() + "> " + child.Attribute("number").Value;
+                        break;
+                    case "text":
+                        label = "<Text> " + child.Value;
+                        break;
+                    case "option":
+                        label = "<Option> " + child.Value;
+                        break;
+                    case "character":
+                        label = "<Character> " + child.Attribute("name").Value;
+                        break;
+                    case "redirect":
+                        label = "<Redirect> Ch" + child.Attribute("chapter").Value + " D" + child.Attribute("dialogue").Value;
+                        break;
+                    default:
+                        label = "<" + child.Name.ToString() + ">";
+                        break;
+                }
+                TreeNode childNode = treeNode.Nodes.Add(label);
                 childNode.Tag = child;
                 AddNodes(childNode, child);
             }
@@ -88,7 +181,12 @@ namespace VNDialogueEditor {
         }
 
         private void ExportXMLFile_Click(object sender, EventArgs e) {
-            ExportXML();
+            ExportXML(treeView1.Nodes[0].Tag.ToString());
+        }
+
+        private void buildAndExport_Click(object sender, EventArgs e) {
+            XElement export = Build();
+            ExportXML(export.ToString());
         }
     }
 }

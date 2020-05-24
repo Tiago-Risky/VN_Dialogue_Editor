@@ -39,6 +39,7 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.buildAndExportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -66,7 +67,8 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openXMLFileToolStripMenuItem,
-            this.exportXMLFileToolStripMenuItem});
+            this.exportXMLFileToolStripMenuItem,
+            this.buildAndExportToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -74,14 +76,14 @@
             // openXMLFileToolStripMenuItem
             // 
             this.openXMLFileToolStripMenuItem.Name = "openXMLFileToolStripMenuItem";
-            this.openXMLFileToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.openXMLFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openXMLFileToolStripMenuItem.Text = "Open XML File";
             this.openXMLFileToolStripMenuItem.Click += new System.EventHandler(this.OpenXMLFile_Click);
             // 
             // exportXMLFileToolStripMenuItem
             // 
             this.exportXMLFileToolStripMenuItem.Name = "exportXMLFileToolStripMenuItem";
-            this.exportXMLFileToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.exportXMLFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exportXMLFileToolStripMenuItem.Text = "Export XML File";
             this.exportXMLFileToolStripMenuItem.Click += new System.EventHandler(this.ExportXMLFile_Click);
             // 
@@ -145,6 +147,13 @@
             this.textBox1.Size = new System.Drawing.Size(425, 167);
             this.textBox1.TabIndex = 0;
             // 
+            // buildAndExportToolStripMenuItem
+            // 
+            this.buildAndExportToolStripMenuItem.Name = "buildAndExportToolStripMenuItem";
+            this.buildAndExportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.buildAndExportToolStripMenuItem.Text = "Build and Export";
+            this.buildAndExportToolStripMenuItem.Click += new System.EventHandler(this.buildAndExport_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -179,6 +188,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.ToolStripMenuItem exportXMLFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem buildAndExportToolStripMenuItem;
     }
 }
 

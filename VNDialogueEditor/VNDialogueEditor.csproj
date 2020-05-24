@@ -54,6 +54,11 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VisualNovel\Chapter.cs" />
+    <Compile Include="VisualNovel\Character.cs" />
+    <Compile Include="VisualNovel\Dialogue.cs" />
+    <Compile Include="VisualNovel\Option.cs" />
+    <Compile Include="VisualNovel\Redirect.cs" />
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>
@@ -79,5 +84,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
