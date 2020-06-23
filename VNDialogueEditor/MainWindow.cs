@@ -16,6 +16,8 @@ namespace VNDialogueEditor {
         private List<Chapter> chapterList;
         public List<Chapter> ChapterList => chapterList ?? (chapterList = new List<Chapter>());
 
+        public readonly int CurrentEditorVersion = 1;
+
         private void LoadXML() {
             OpenFileDialog openFileDialog = new OpenFileDialog {
                 Filter = "XML Files (*.xml)|*.xml|All files (*.*)|*.*",
@@ -158,13 +160,9 @@ namespace VNDialogueEditor {
         }
 
         private XElement Build() {
-            XElement newDocument = new XElement("Document", new XAttribute("EditorVersion", 1));
+            XElement newDocument = new XElement("Document", new XAttribute("EditorVersion", CurrentEditorVersion));
             foreach (Chapter chapter in ChapterList) {
-                XElement xElement = new XElement("Chapter", new XAttribute("Number", chapter.Number));
-                foreach (Dialogue dialogue in chapter.Dialogues) {
-                    xElement.Add(dialogue.ExportXML());
-                }
-                newDocument.Add(xElement);
+                newDocument.Add(chapter.ExportXML());
             }
 
             return newDocument;

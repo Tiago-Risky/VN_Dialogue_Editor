@@ -35,14 +35,12 @@ namespace VisualNovel {
             return Characters.Count > 0;
         }
 
+        // For the dialogue editor
         public XElement ExportXML() {
-            XElement xElement = new XElement("Dialogue", new XAttribute("Number", Number), new XElement("Text",Text));
+            XElement xElement = new XElement("Dialogue", new XAttribute("Number", Number), new XElement("Text", Text));
 
             if (HasRedirect()) {
-                xElement.Add(new XElement("Redirect",
-                            new XAttribute("Chapter", Redirect.Chapter),
-                            new XAttribute("Dialogue", Redirect.Dialogue))
-                        );
+                xElement.Add(Redirect.ExportXML());
             }
 
             if (HasBackground()) {
@@ -52,14 +50,7 @@ namespace VisualNovel {
             if (HasCharacters()) {
                 XElement charactersElement = new XElement("Characters");
                 foreach (Character character in Characters) {
-                    charactersElement.Add(new XElement("Character",
-                        new XAttribute("Name", character.Name),
-                        new XAttribute("Picture", character.Picture),
-                        new XAttribute("Side", character.Side),
-                        new XAttribute("Selected", character.Selected),
-                        new XAttribute("Hidden", character.Hidden)
-                        )
-                    );
+                    charactersElement.Add(character.ExportXML());
                 }
                 xElement.Add(charactersElement);
             }
@@ -67,13 +58,7 @@ namespace VisualNovel {
             if (IsQuestion()) {
                 XElement optionsElement = new XElement("Options");
                 foreach (Option option in Options) {
-                    optionsElement.Add(new XElement("Option",
-                        new XAttribute("Text", option.Text),
-                        new XElement("Redirect",
-                            new XAttribute("Chapter", option.Redirect.Chapter),
-                            new XAttribute("Dialogue", option.Redirect.Dialogue))
-                        )
-                    );
+                    optionsElement.Add(option.ExportXML());
                 }
                 xElement.Add(optionsElement);
             }
