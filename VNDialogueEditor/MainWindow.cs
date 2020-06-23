@@ -13,8 +13,7 @@ namespace VNDialogueEditor {
         }
 
         private XElement XmlFile;
-        private List<Chapter> chapterList;
-        public List<Chapter> ChapterList => chapterList ?? (chapterList = new List<Chapter>());
+        public List<Chapter> ChapterList;
 
         public readonly int CurrentEditorVersion = 1;
 
@@ -27,10 +26,10 @@ namespace VNDialogueEditor {
                 XmlFile = XElement.Load(openFileDialog.FileName);
                 PopulateTree(treeView1, XmlFile);
                 if (XmlFile.Attribute("EditorVersion") != null) {
-                    LoadDialogue(XmlFile);
+                    ChapterList = LoadDialogue(XmlFile);
                 }
                 else {
-                    LoadDialogueLegacy(XmlFile);
+                    ChapterList = LoadDialogueLegacy(XmlFile);
                 }
             }
         }
@@ -55,10 +54,11 @@ namespace VNDialogueEditor {
             }
         }
 
-        public void LoadDialogueLegacy(XElement file) {
-            List<XElement> chapters = file.Elements("Chapter").ToList();
+        public List<Chapter> LoadDialogueLegacy(XElement file) {
+            List<Chapter> LoadedChapters = new List<Chapter>();
+            List<XElement> Chapters = file.Elements("Chapter").ToList();
 
-            foreach (XElement chapter in chapters) {
+            foreach (XElement chapter in Chapters) {
                 //Deprecated for now
                 int ChapterNumber = int.Parse(chapter.Attribute("number").Value);
                 string ChapterBackground = (chapter.Attribute("background") != null) ? chapter.Attribute("background").Value : "";
@@ -66,12 +66,12 @@ namespace VNDialogueEditor {
 
                 foreach (XElement dialogue in chapter.Elements("Dialogue").ToList()) {
                     int DialogueNumber = int.Parse(dialogue.Attribute("number").Value);
-                    string dialogueText = dialogue.Element("text").Value;
+                    string DialogueText = dialogue.Element("text").Value;
                     string DialogueBackground = (dialogue.Attribute("background") != null) ? dialogue.Attribute("background").Value : "";
 
-                    Redirect dialogueRedirect = null;
+                    Redirect DialogueRedirect = null;
                     if (dialogue.Element("redirect") != null) {
-                        dialogueRedirect = new Redirect(int.Parse(dialogue.Element("redirect").Attribute("chapter").Value),
+                        DialogueRedirect = new Redirect(int.Parse(dialogue.Element("redirect").Attribute("chapter").Value),
                                                 int.Parse(dialogue.Element("redirect").Attribute("dialogue").Value));
                     }
 
@@ -98,65 +98,24 @@ namespace VNDialogueEditor {
                         }
                     }
 
-                    Dialogue Dialogue = new Dialogue(DialogueNumber, DialogueCharacters, dialogueText, dialogueRedirect, DialogueOptions, DialogueBackground);
+                    Dialogue Dialogue = new Dialogue(DialogueNumber, DialogueText, DialogueBackground, DialogueRedirect, DialogueCharacters, DialogueOptions);
 
                     Chapter.Dialogues.Add(Dialogue);
                 }
 
-                ChapterList.Add(Chapter);
+                LoadedChapters.Add(Chapter);
             }
+            return LoadedChapters;
         }
 
-        public void LoadDialogue(XElement file) {
-            List<XElement> chapters = file.Elements("Chapter").ToList();
+        public List<Chapter> LoadDialogue(XElement file) {
+            List<Chapter> LoadedChapters = new List<Chapter>();
+            List<XElement> Chapters = file.Elements("Chapter").ToList();
 
-            foreach (XElement chapter in chapters) {
-                //Deprecated for now
-                int ChapterNumber = int.Parse(chapter.Attribute("Number").Value);
-                string ChapterBackground = (chapter.Attribute("Background") != null) ? chapter.Attribute("Background").Value : "";
-                Chapter Chapter = new Chapter(ChapterNumber, ChapterBackground);
-
-                foreach (XElement dialogue in chapter.Elements("Dialogue").ToList()) {
-                    int DialogueNumber = int.Parse(dialogue.Attribute("Number").Value);
-                    string dialogueText = dialogue.Element("Text").Value;
-                    string DialogueBackground = (dialogue.Attribute("Background") != null) ? dialogue.Attribute("Background").Value : "";
-
-                    Redirect dialogueRedirect = null;
-                    if (dialogue.Element("Redirect") != null) {
-                        dialogueRedirect = new Redirect(int.Parse(dialogue.Element("Redirect").Attribute("Chapter").Value),
-                                                int.Parse(dialogue.Element("Redirect").Attribute("Dialogue").Value));
-                    }
-
-                    List<Option> DialogueOptions = null;
-                    if (dialogue.Element("Options") != null) {
-                        DialogueOptions = new List<Option>();
-                        foreach (XElement option in dialogue.Element("Options").Elements("Option").ToList()) {
-
-                            Redirect optionRedir = new Redirect(int.Parse(option.Element("Redirect").Attribute("Chapter").Value),
-                                                int.Parse(option.Element("Redirect").Attribute("Dialogue").Value));
-                            DialogueOptions.Add(new Option(option.Attribute("Text").Value, optionRedir));
-                        }
-                    }
-                    List<Character> DialogueCharacters = new List<Character>();
-                    if (dialogue.Element("Characters") != null) {
-                        foreach (XElement character in dialogue.Element("Characters").Elements("Character").ToList()) {
-                            // Defaults: Name = "" ; Picture = "" ; Side = 0 (Left); Selected = true; Hidden = false
-                            string CharacterName = (character.Attribute("Name") != null) ? character.Attribute("Name").Value : "";
-                            string CharacterPicture = (character.Attribute("picture") != null) ? character.Attribute("Picture").Value : "";
-                            int CharacterSide = (character.Attribute("Side") != null) ? int.Parse(character.Attribute("Side").Value) : 0;
-                            bool CharacterSelected = (character.Attribute("Selected") != null) ? bool.Parse(character.Attribute("Selected").Value) : true;
-                            bool CharacterHidden = (character.Attribute("Hidden") != null) ? bool.Parse(character.Attribute("Hidden").Value) : false;
-                            DialogueCharacters.Add(new Character(CharacterName, CharacterPicture, CharacterSide, CharacterSelected, CharacterHidden));
-                        }
-                    }
-
-                    Dialogue Dialogue = new Dialogue(DialogueNumber, DialogueCharacters, dialogueText, dialogueRedirect, DialogueOptions, DialogueBackground);
-
-                    Chapter.Dialogues.Add(Dialogue);
-                }
-
-                ChapterList.Add(Chapter);
+            foreach (XElement chapter in Chapters) {
+                LoadedChapters.Add(new Chapter(chapter));
             }
+            return LoadedChapters;
         }
 
         private XElement Build() {
