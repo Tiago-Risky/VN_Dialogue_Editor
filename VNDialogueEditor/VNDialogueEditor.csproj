@@ -46,6 +46,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DialogForms\NewChapterDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DialogForms\NewChapterDialog.Designer.cs">
+      <DependentUpon>NewChapterDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Editor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Editor.Designer.cs">
+      <DependentUpon>Editor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainMenu.Designer.cs">
+      <DependentUpon>MainMenu.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -58,7 +76,19 @@
     <Compile Include="VisualNovel\Character.cs" />
     <Compile Include="VisualNovel\Dialogue.cs" />
     <Compile Include="VisualNovel\Option.cs" />
+    <Compile Include="VisualNovel\Point.cs" />
+    <Compile Include="VisualNovel\PointGate.cs" />
+    <Compile Include="VisualNovel\PointOperations.cs" />
     <Compile Include="VisualNovel\Redirect.cs" />
+    <EmbeddedResource Include="DialogForms\NewChapterDialog.resx">
+      <DependentUpon>NewChapterDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editor.resx">
+      <DependentUpon>Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainMenu.resx">
+      <DependentUpon>MainMenu.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>

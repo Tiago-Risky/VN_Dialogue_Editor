@@ -55,16 +55,17 @@ namespace VNDialogueEditor {
         }
 
         public List<Chapter> LoadDialogueLegacy(XElement file) {
+            // This serves for compatibility with older XML files generated before v1
             List<Chapter> LoadedChapters = new List<Chapter>();
             List<XElement> Chapters = file.Elements("Chapter").ToList();
 
             foreach (XElement chapter in Chapters) {
-                //Deprecated for now
                 int ChapterNumber = int.Parse(chapter.Attribute("number").Value);
                 string ChapterBackground = (chapter.Attribute("background") != null) ? chapter.Attribute("background").Value : "";
                 Chapter Chapter = new Chapter(ChapterNumber, ChapterBackground);
+                List<XElement> DialogueList = chapter.Elements("Dialogue").ToList();
 
-                foreach (XElement dialogue in chapter.Elements("Dialogue").ToList()) {
+                foreach (XElement dialogue in DialogueList) {
                     int DialogueNumber = int.Parse(dialogue.Attribute("number").Value);
                     string DialogueText = dialogue.Element("text").Value;
                     string DialogueBackground = (dialogue.Attribute("background") != null) ? dialogue.Attribute("background").Value : "";
@@ -74,6 +75,22 @@ namespace VNDialogueEditor {
                         DialogueRedirect = new Redirect(int.Parse(dialogue.Element("redirect").Attribute("chapter").Value),
                                                 int.Parse(dialogue.Element("redirect").Attribute("dialogue").Value));
                     }
+                    if(dialogue.Element("options") == null && dialogue.Element("redirect") == null) { //Redirects are now always needed, as such we will workaround the previous behaviour here
+                        int RedirectDialogue = DialogueNumber;
+                        int RedirectChapter = ChapterNumber;
+                        if (DialogueNumber >= DialogueList.Count()) {
+                            RedirectDialogue = 1;
+                            RedirectChapter++;
+                            if (RedirectChapter>Chapters.Count()) {
+                                RedirectDialogue = -1;
+                                RedirectChapter = -1;
+                            }
+                        }
+                        else {
+                            RedirectDialogue++;
+                        }
+                        DialogueRedirect = new Redirect(RedirectChapter, RedirectDialogue);
+                    }
 
                     List<Option> DialogueOptions = null;
                     if (dialogue.Element("options") != null) {
@@ -82,7 +99,7 @@ namespace VNDialogueEditor {
 
                             Redirect optionRedir = new Redirect(int.Parse(option.Element("redirect").Attribute("chapter").Value),
                                                 int.Parse(option.Element("redirect").Attribute("dialogue").Value));
-                            DialogueOptions.Add(new Option(option.Element("option_text").Value, optionRedir));
+                            DialogueOptions.Add(new Option(option.Element("option_text").Value, optionRedir, null, null));
                         }
                     }
                     List<Character> DialogueCharacters = new List<Character>();
@@ -98,7 +115,7 @@ namespace VNDialogueEditor {
                         }
                     }
 
-                    Dialogue Dialogue = new Dialogue(DialogueNumber, DialogueText, DialogueBackground, DialogueRedirect, DialogueCharacters, DialogueOptions);
+                    Dialogue Dialogue = new Dialogue(DialogueNumber, DialogueBackground, DialogueText, DialogueRedirect, null, null, DialogueOptions, DialogueCharacters);
 
                     Chapter.Dialogues.Add(Dialogue);
                 }
@@ -137,7 +154,7 @@ namespace VNDialogueEditor {
                 AddNodes(Document, xmlDocument);
             }
             else {
-                AddNodesLegacy(Document, xmlDocument);
+                //AddNodesLegacy(Document, xmlDocument);
             }
             treeview.ExpandAll();
             treeview.Nodes[0].EnsureVisible();
