@@ -30,7 +30,6 @@
             this.rbNoBg = new System.Windows.Forms.RadioButton();
             this.rbBgImg = new System.Windows.Forms.RadioButton();
             this.textBgImg = new System.Windows.Forms.TextBox();
-            this.labelChapterID = new System.Windows.Forms.Label();
             this.cancelButton = new System.Windows.Forms.Button();
             this.addButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
@@ -105,16 +104,6 @@
             this.textBgImg.TabIndex = 6;
             this.textBgImg.Text = "(background image)";
             // 
-            // labelChapterID
-            // 
-            this.labelChapterID.AutoSize = true;
-            this.labelChapterID.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelChapterID.Location = new System.Drawing.Point(16, 190);
-            this.labelChapterID.Name = "labelChapterID";
-            this.labelChapterID.Size = new System.Drawing.Size(66, 15);
-            this.labelChapterID.TabIndex = 7;
-            this.labelChapterID.Text = "Internal ID:";
-            // 
             // cancelButton
             // 
             this.cancelButton.BackColor = System.Drawing.Color.LightSalmon;
@@ -147,7 +136,6 @@
             this.ClientSize = new System.Drawing.Size(412, 225);
             this.Controls.Add(this.addButton);
             this.Controls.Add(this.cancelButton);
-            this.Controls.Add(this.labelChapterID);
             this.Controls.Add(this.textBgImg);
             this.Controls.Add(this.rbBgImg);
             this.Controls.Add(this.rbNoBg);
@@ -180,7 +168,6 @@
         private System.Windows.Forms.RadioButton rbNoBg;
         private System.Windows.Forms.RadioButton rbBgImg;
         private System.Windows.Forms.TextBox textBgImg;
-        private System.Windows.Forms.Label labelChapterID;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.Button addButton;
     }

@@ -4,7 +4,7 @@ using System.Xml.Linq;
 
 namespace VisualNovel {
     public class Chapter {
-        public int Number;
+        public int Number { get; set; }
         public string Background;
         private List<Dialogue> dialogues;
         public List<Dialogue> Dialogues {

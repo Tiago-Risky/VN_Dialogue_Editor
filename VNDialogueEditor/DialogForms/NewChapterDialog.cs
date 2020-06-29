@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
+using VisualNovel;
 
 namespace VNDialogueEditor.DialogForms {
     public partial class NewChapterDialog : Form {
-
-        private int NewChapterID;
 
         public NewChapterDialog() {
             InitializeComponent();
@@ -14,10 +13,12 @@ namespace VNDialogueEditor.DialogForms {
                 boxPlaceAfter.Enabled = false;
             }
             else {
-                //TODO
+                boxPlaceAfter.Items.Add("Place at the start");
+                foreach (Chapter chapter in Editor.Chapters) {
+                    boxPlaceAfter.Items.Add("Chapter " + chapter.Number);
+                }
+                boxPlaceAfter.SelectedIndex = boxPlaceAfter.Items.Count - 1;
             }
-            NewChapterID = Editor.LastChapterID + 1;
-            labelChapterID.Text = "Internal ID: " + NewChapterID;
         }
 
         private void NewChapterDialog_FormClosing(object sender, FormClosingEventArgs e) {
@@ -45,7 +46,26 @@ namespace VNDialogueEditor.DialogForms {
         }
 
         private void addButton_Click(object sender, EventArgs e) {
-            //TODO
+            string Background = "";
+            if (rbBgImg.Checked) {
+                if ((textBgImg.TextLength < 1 || textBgImg.Text == "(background image)")) {
+                    MessageBox.Show("Wrong background image name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                Background = textBgImg.Text;
+            }
+            Chapter NewChapter = new Chapter(Editor.HighestChapterNumber + 1, Background);
+            switch (Editor.Chapters.Count) {
+                case 0:
+                    Editor.Chapters.Add(NewChapter);
+                    break;
+                default:
+                    Editor.Chapters.Insert(boxPlaceAfter.SelectedIndex, NewChapter);
+                    break;
+            }
+
+            Editor.HighestChapterNumber = NewChapter.Number;
+
             DialogResult = DialogResult.OK;
         }
     }
