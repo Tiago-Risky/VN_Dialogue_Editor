@@ -24,6 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.rightPanel = new System.Windows.Forms.Panel();
+            this.btnFixChapterNumbers = new System.Windows.Forms.Button();
             this.btnExport = new System.Windows.Forms.Button();
             this.btnPointsMenu = new System.Windows.Forms.Button();
             this.btnCharsMenu = new System.Windows.Forms.Button();
@@ -32,13 +33,12 @@
             this.leftPanel = new System.Windows.Forms.Panel();
             this.dialogueTreeview = new System.Windows.Forms.TreeView();
             this.labelDialogueList = new System.Windows.Forms.Label();
-            this.chapterList = new System.Windows.Forms.ListBox();
+            this.chapterListBox = new System.Windows.Forms.ListBox();
             this.labelChapterList = new System.Windows.Forms.Label();
             this.mainTopPanel = new System.Windows.Forms.Panel();
             this.gbChapter = new System.Windows.Forms.GroupBox();
             this.mainPanel = new System.Windows.Forms.Panel();
             this.gbDialogue = new System.Windows.Forms.GroupBox();
-            this.btnFixChapterNumbers = new System.Windows.Forms.Button();
             this.rightPanel.SuspendLayout();
             this.leftPanel.SuspendLayout();
             this.mainTopPanel.SuspendLayout();
@@ -60,6 +60,16 @@
             this.rightPanel.Name = "rightPanel";
             this.rightPanel.Size = new System.Drawing.Size(132, 461);
             this.rightPanel.TabIndex = 0;
+            // 
+            // btnFixChapterNumbers
+            // 
+            this.btnFixChapterNumbers.BackColor = System.Drawing.Color.LemonChiffon;
+            this.btnFixChapterNumbers.Location = new System.Drawing.Point(3, 152);
+            this.btnFixChapterNumbers.Name = "btnFixChapterNumbers";
+            this.btnFixChapterNumbers.Size = new System.Drawing.Size(127, 31);
+            this.btnFixChapterNumbers.TabIndex = 5;
+            this.btnFixChapterNumbers.Text = "Fix Chapter Nrs";
+            this.btnFixChapterNumbers.UseVisualStyleBackColor = false;
             // 
             // btnExport
             // 
@@ -120,7 +130,7 @@
             this.leftPanel.BackColor = System.Drawing.Color.MistyRose;
             this.leftPanel.Controls.Add(this.dialogueTreeview);
             this.leftPanel.Controls.Add(this.labelDialogueList);
-            this.leftPanel.Controls.Add(this.chapterList);
+            this.leftPanel.Controls.Add(this.chapterListBox);
             this.leftPanel.Controls.Add(this.labelChapterList);
             this.leftPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this.leftPanel.Location = new System.Drawing.Point(0, 0);
@@ -150,15 +160,15 @@
             this.labelDialogueList.TabIndex = 3;
             this.labelDialogueList.Text = "Dialogues";
             // 
-            // chapterList
+            // chapterListBox
             // 
-            this.chapterList.Dock = System.Windows.Forms.DockStyle.Top;
-            this.chapterList.FormattingEnabled = true;
-            this.chapterList.ItemHeight = 15;
-            this.chapterList.Location = new System.Drawing.Point(2, 19);
-            this.chapterList.Name = "chapterList";
-            this.chapterList.Size = new System.Drawing.Size(228, 109);
-            this.chapterList.TabIndex = 0;
+            this.chapterListBox.Dock = System.Windows.Forms.DockStyle.Top;
+            this.chapterListBox.FormattingEnabled = true;
+            this.chapterListBox.ItemHeight = 15;
+            this.chapterListBox.Location = new System.Drawing.Point(2, 19);
+            this.chapterListBox.Name = "chapterListBox";
+            this.chapterListBox.Size = new System.Drawing.Size(228, 109);
+            this.chapterListBox.TabIndex = 0;
             // 
             // labelChapterList
             // 
@@ -214,16 +224,6 @@
             this.gbDialogue.TabStop = false;
             this.gbDialogue.Text = "Selected Dialogue";
             // 
-            // btnFixChapterNumbers
-            // 
-            this.btnFixChapterNumbers.BackColor = System.Drawing.Color.LemonChiffon;
-            this.btnFixChapterNumbers.Location = new System.Drawing.Point(3, 152);
-            this.btnFixChapterNumbers.Name = "btnFixChapterNumbers";
-            this.btnFixChapterNumbers.Size = new System.Drawing.Size(127, 31);
-            this.btnFixChapterNumbers.TabIndex = 5;
-            this.btnFixChapterNumbers.Text = "Fix Chapter Nrs";
-            this.btnFixChapterNumbers.UseVisualStyleBackColor = false;
-            // 
             // Editor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -261,7 +261,7 @@
         private System.Windows.Forms.Button btnNewChapter;
         private System.Windows.Forms.Panel leftPanel;
         private System.Windows.Forms.TreeView dialogueTreeview;
-        private System.Windows.Forms.ListBox chapterList;
+        private System.Windows.Forms.ListBox chapterListBox;
         private System.Windows.Forms.Label labelDialogueList;
         private System.Windows.Forms.Label labelChapterList;
         private System.Windows.Forms.Panel mainTopPanel;

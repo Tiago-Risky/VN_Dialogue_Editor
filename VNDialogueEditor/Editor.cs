@@ -16,7 +16,12 @@ namespace VNDialogueEditor {
         public Editor() {
             InitializeComponent();
             Chapters = new List<Chapter>();
+
+            // chapterListBox setup
             bs.DataSource = Chapters;
+            chapterListBox.DisplayMember = "Number";
+            chapterListBox.DataSource = bs;
+            chapterListBox.FormatString = "Chapter 0";
         }
 
         public Editor(XElement file) {
@@ -32,15 +37,8 @@ namespace VNDialogueEditor {
             NewChapterDialog newChapterDialog = new NewChapterDialog();
             newChapterDialog.ShowDialog();
             if (newChapterDialog.DialogResult == DialogResult.OK) {
-                //chapterList.Items.Clear();
-                /*foreach (Chapter chapter in Chapters) {
-                    chapterList.Items.Add("Chapter " + chapter.Number);
-                }*/
                 bs.ResetBindings(false);
-                chapterList.DisplayMember = "Number";
-                chapterList.DataSource = bs;
-                chapterList.FormatString = "Chapter 0";
-                //Not very clean, will need to fix to place cursor on the latest
+                chapterListBox.SelectedIndex = newChapterDialog.NewChapterIndex;
             }
         }
     }

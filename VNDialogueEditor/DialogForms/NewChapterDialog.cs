@@ -5,6 +5,8 @@ using VisualNovel;
 namespace VNDialogueEditor.DialogForms {
     public partial class NewChapterDialog : Form {
 
+        public int NewChapterIndex { get; set; }
+
         public NewChapterDialog() {
             InitializeComponent();
             if (Editor.Chapters.Count == 0) {
@@ -58,9 +60,11 @@ namespace VNDialogueEditor.DialogForms {
             switch (Editor.Chapters.Count) {
                 case 0:
                     Editor.Chapters.Add(NewChapter);
+                    NewChapterIndex = 0;
                     break;
                 default:
                     Editor.Chapters.Insert(boxPlaceAfter.SelectedIndex, NewChapter);
+                    NewChapterIndex = boxPlaceAfter.SelectedIndex;
                     break;
             }
 
